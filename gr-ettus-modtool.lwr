@@ -1,0 +1,27 @@
+# vim:ft=yaml:
+# Prefix recipe:
+# E3XX SDK Release 4, custom UHD+GNU Radio
+
+inherit: cmake
+description: Out-of-Tree Module for experimental Ettus Research features
+config:
+    categories:
+        hardware:
+            forcebuild: True
+        common:
+            forcebuild: True
+    packages:
+        uhd: #the branch has to point to the fpga-src that has the make.py
+            gitbranch: rfnoc-radio-redo
+            forceinstalled: False
+            forcebuild: True
+	    vars:
+	        config_opt: ' -DENABLE_B200=OFF '
+        gnuradio:
+            forcebuild: True
+        gr-ettus:
+            gitbranch: radio-redo
+	    source: git@github.com:EttusResearch/gr-ettus.git
+depends:
+- gnuradio
+- uhd
