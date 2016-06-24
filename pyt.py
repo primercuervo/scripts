@@ -1,4 +1,7 @@
 import re
+import os
+import glob
+
 patt_v = re.escape('RFNOC_SRCS = $(abspath $(addprefix $(BASE_DIR)/../lib/rfnoc/, \\\n')
 
 def append_item_into_file(filename, linepattern, newline):
@@ -45,3 +48,42 @@ def compare(file1,file2):
     lists = notinside
     strings = ''.join(notinside)
     return lists,strings
+
+def zero_padd(noc_id):
+    """
+    checks if the number given for NoC ID is 16 digits long. If it is shorter, pads the until 16 with zeros. If it is longer,
+    throws error, as it is not allowed
+    """
+    digits = len(noc_id)
+    if (digits > 16):
+        print "Invalid NoC ID - Please provide an ID shorter than 16 Hex Digits"
+        #raise ModToolException('Invalid NoC ID - Only Hexadecimal Values accepted.')
+        return
+    else:
+        while digits < 16:
+            noc_id +='0'
+            digits += 1
+    return noc_id
+
+def device_dict(args):
+    """
+    helps selecting the device building folder based on the targeted device
+    """
+    build_dir = {'x300':'x300','x310':'x300','e300':'e300'}
+    return build_dir[args]
+
+def     getScriptPath():
+        return os.path.dirname(os.path.realpath(argv[0]))
+
+
+def checkdir_v(include_dir):
+    """
+    Checks the existance of verilog files in the given include dir
+    """
+    nfiles = glob.glob(include_dir+'*.v')
+    if (len(nfiles) == 0):
+        print 'No verilog files found in the given directory'
+        exit(0)
+    else:
+        print 'Verilog sources found!'
+    return
