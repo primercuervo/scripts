@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+"""
+Make.py GUI
+"""
+import sys
+from PyQt4 import Qt
+from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtGui import *
+
+a = QApplication(sys.argv)
+
+w = QWidget()
+w. resize(320, 240)
+w. setWindowTitle("Make.py GUI")
+
+# Add buttons for file showing or bit generation
+# This buttons also execute the final command
+show_file_btn = QPushButton('Show instantiation FIle', w)
+show_file_btn.setToolTip('Click to open the resultant file in a new window')
+#show_file_btn.clicked.connect(exit)
+show_file_btn.resize(show_file_btn.sizeHint())
+show_file_btn.move(100, 80)
+
+# Create the action for the button
+@pyqtSlot()
+def on_click():
+    print('clicked')
+@pyqtSlot()
+def on_press():
+    print('pressed')
+@pyqtSlot()
+def on_release():
+    print('released')
+
+# Connect the signals to the slots
+show_file_btn.clicked.connect(on_click)
+show_file_btn.pressed.connect(on_press)
+show_file_btn.released.connect(on_release)
+
+w.show()
+#sys.exit(a.exec_())
+a.exec_()
