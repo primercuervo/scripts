@@ -20,34 +20,28 @@ class FormWidget(QWidget):
         super(FormWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
 
-        def populateList(self):
-            with open(fname) as f:
-                block = f.readlines()
-            for line in block:
-                self.block_list.addItem(line)
+        # def retrieve_blk_name(filename, linepattern, newline):
+            # """ Detects the re 'linepattern' in the file. After its last occurrence,
+            # stores line per line the contents of the file into a list. If the pattern
+            # does not exist, returns.
+            # """
+            # files = open(filename, 'r').read()
+            # lines = re.findall(linepattern, files, flags=re.MULTILINE)
+            # if len(lines) == 0:
+                # return
 
-        def retrieve_blk_name(filename, linepattern, newline):
-            """ Detects the re 'linepattern' in the file. After its last occurrence,
-            stores line per line the contents of the file into a list. If the pattern
-            does not exist, returns.
-            """
-            files = open(filename, 'r').read()
-            lines = re.findall(linepattern, files, flags=re.MULTILINE)
-            if len(lines) == 0:
-                return
-
-            oldfile = open(filename, 'r').read()
-            lines = re.findall(newline, oldfile, flags=re.MULTILINE)
-            if len(lines) != 0:
-                pass
-            else:
-                pattern_lines = re.findall(linepattern, oldfile, flags=re.MULTILINE)
-                if len(pattern_lines) == 0:
-                    open(filename, 'a').write(newline)
-                    return
-                last_line = pattern_lines[-1]
-                newfile = oldfile.replace(last_line, last_line + newline + '\n')
-                open(filename, 'w').write(newfile)
+            # oldfile = open(filename, 'r').read()
+            # lines = re.findall(newline, oldfile, flags=re.MULTILINE)
+            # if len(lines) != 0:
+                # pass
+            # else:
+                # pattern_lines = re.findall(linepattern, oldfile, flags=re.MULTILINE)
+                # if len(pattern_lines) == 0:
+                    # open(filename, 'a').write(newline)
+                    # return
+                # last_line = pattern_lines[-1]
+                # newfile = oldfile.replace(last_line, last_line + newline + '\n')
+                # open(filename, 'w').write(newfile)
 
 
 # Create the action for the button
@@ -62,9 +56,16 @@ class FormWidget(QWidget):
             print('released')
 #Message box - No blocks found on given path
         @pyqtSlot()
-        def loadList():
+        def populateList():
+            suffix = '.v \\\n'
+            with open(fname) as f:
+                blocks = f.readlines()
+            for element in blocks:
+                if element.endswith(suffix):
+                    element = element[:-len(suffix)] #TODO: there should be a nicer pythonic way
+                    self.block_list.addItem(element)
+
             # QMessageBox.warning(window, "No Blocks Found!", "No RFNoC blocks found in the given path.")
-            populateList(self)
 
 
         self.btn = QPushButton('Do not press')
@@ -99,8 +100,8 @@ class FormWidget(QWidget):
         self.show_file_btn.clicked.connect(on_click)
         self.show_file_btn.pressed.connect(on_press)
         self.show_file_btn.released.connect(on_release)
-        self.btn.clicked.connect(loadList)
-        fname = 'text1.scrs'
+        self.btn.clicked.connect(populateList)
+        fname = 'text2.scrs'
 
 app = QApplication(sys.argv)
 window = MainWindow()
