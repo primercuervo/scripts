@@ -8,6 +8,7 @@ import re
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
+fname = 'text2.scrs'
 class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
@@ -56,14 +57,15 @@ class FormWidget(QWidget):
             print('released')
 #Message box - No blocks found on given path
         @pyqtSlot()
-        def populateList():
+        def populateList(parent):
             suffix = '.v \\\n'
             with open(fname) as f:
                 blocks = f.readlines()
             for element in blocks:
                 if element.endswith(suffix):
                     element = element[:-len(suffix)] #TODO: there should be a nicer pythonic way
-                    self.block_list.addItem(element)
+                    #self.model.addItem(element)
+                    self.model.appendRow(element)
 
             # QMessageBox.warning(window, "No Blocks Found!", "No RFNoC blocks found in the given path.")
 
@@ -78,13 +80,23 @@ class FormWidget(QWidget):
         self.show_file_btn.resize(self.show_file_btn.sizeHint())
         self.layout.addWidget(self.show_file_btn)
         # self.show_file_btn.move(100, 80)
-### /endlist
 #Create textbox for RFNoC OOT Paths
         self.oot_path_label = QLabel
         self.oot_path = QLineEdit()
         self.oot_path.move(20,20)
         self.oot_path.resize(280,40)
         self.layout.addWidget(self.oot_path)
+
+# Create tree to categorize Ettus Block and OOT Blocks in different lists
+        self.listView = QListView()
+        self.listView.setContextMenuPolicy(Qt.CustomContextMenu)
+        EttusBlocks = QStandardItem("Ettus-provided Blocks")
+        #kself.listView = QStandardItemu
+        self.model = QStandardItemModel()
+        self.model.appendRow(EttusBlocks)
+        self.btn.clicked.connect(populateList(EttusBlocks))
+        self.listView.setModel(self.model)
+        self.layout.addWidget(self.listView)
 ####
 # Working on list widget
 ###
@@ -95,13 +107,21 @@ class FormWidget(QWidget):
         self.block_list.addItem("Item 4")
         self.layout.addWidget(self.block_list)
 
+### /endlist
+
 
 # Connect the signals to the slots
         self.show_file_btn.clicked.connect(on_click)
         self.show_file_btn.pressed.connect(on_press)
         self.show_file_btn.released.connect(on_release)
-        self.btn.clicked.connect(populateList)
-        fname = 'text2.scrs'
+
+def addItems(parent, elements):
+        for text, children in elements:
+            item = QStandardItem(text)
+            parent.appendRow(item)
+            if children:
+                self.addItems(item, children)
+
 
 app = QApplication(sys.argv)
 window = MainWindow()
