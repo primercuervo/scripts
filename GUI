@@ -56,21 +56,27 @@ class FormWidget(QWidget):
         def on_release():
             print('released')
 #Message box - No blocks found on given path
-        @pyqtSlot()
-        def populateList(parent):
-            suffix = '.v \\\n'
-            with open(fname) as f:
-                blocks = f.readlines()
-            for element in blocks:
-                if element.endswith(suffix):
-                    element = element[:-len(suffix)] #TODO: there should be a nicer pythonic way
-                    #self.model.addItem(element)
-                    self.model.appendRow(element)
+        # @pyqtSlot()
+        # def populateList():
+            # suffix = '.v \\\n'
+            # with open(fname) as f:
+                # blocks = f.readlines()
+            # for element in blocks:
+                # if element.endswith(suffix):
+                    # element = element[:-len(suffix)] #TODO: there should be a nicer pythonic way
+                    # block = QStandardItem(element)
+                    # # self.block_list.addItem(element)
+                    # #self.model.appendRow(block)
+                    # EttusBlocks.appendRow(block)
 
             # QMessageBox.warning(window, "No Blocks Found!", "No RFNoC blocks found in the given path.")
+        @pyqtSlot()
+        def fileDiag():
+            filename = QFileDialog.getOpenFileName(window, 'Open File', '/')
+            self.populateList(OOT,filename)
 
 
-        self.btn = QPushButton('Do not press')
+        self.btn = QPushButton('Add OOT Blocks')
         self.layout.addWidget(self.btn)
         # Add buttons for file showing or bit generation
         # This buttons also execute the final command
@@ -88,32 +94,60 @@ class FormWidget(QWidget):
         self.layout.addWidget(self.oot_path)
 
 # Create tree to categorize Ettus Block and OOT Blocks in different lists
-        self.listView = QListView()
-        self.listView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.treeView = QTreeView()
+        #Set items no editable
+        self.treeView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.treeView.setContextMenuPolicy(Qt.CustomContextMenu)
         EttusBlocks = QStandardItem("Ettus-provided Blocks")
+        self.populateList(EttusBlocks,fname)
+        OOT = QStandardItem("OOT Blocks")
+
+##
+# Tree for blocks in design
+##
+        self.blocksInDesign = QTreeView()
+        self.blocksInDesign.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.blocksInDesign.setGeometry(QRect(20, 40, 601, 501))
+        self.layout.addWidget(self.blocksInDesign)
+
+
         #kself.listView = QStandardItemu
         self.model = QStandardItemModel()
         self.model.appendRow(EttusBlocks)
-        self.btn.clicked.connect(populateList(EttusBlocks))
-        self.listView.setModel(self.model)
-        self.layout.addWidget(self.listView)
+        self.model.appendRow(OOT)
+        self.btn.clicked.connect(fileDiag)
+        self.treeView.setModel(self.model)
+        self.layout.addWidget(self.treeView)
 ####
 # Working on list widget
 ###
-        self.block_list = QListWidget()
-        self.block_list.addItem("Item 1")
-        self.block_list.addItem("Item 2")
-        self.block_list.addItem("Item 3")
-        self.block_list.addItem("Item 4")
-        self.layout.addWidget(self.block_list)
+        # self.block_list = QListWidget()
+        # self.block_list.addItem("Item 1")
+        # self.block_list.addItem("Item 2")
+        # self.block_list.addItem("Item 3")
+        # self.block_list.addItem("Item 4")
+        # self.layout.addWidget(self.block_list)
 
 ### /endlist
 
 
 # Connect the signals to the slots
-        self.show_file_btn.clicked.connect(on_click)
+        self.show_file_btn.clicked.connect(on_press)
         self.show_file_btn.pressed.connect(on_press)
         self.show_file_btn.released.connect(on_release)
+
+    def populateList(self,parent,files):
+            suffix = '.v \\\n'
+            with open(files) as f:
+                blocks = f.readlines()
+            for element in blocks:
+                if element.endswith(suffix):
+                    element = element[:-len(suffix)] #TODO: there should be a nicer pythonic way
+                    block = QStandardItem(element)
+                    # self.block_list.addItem(element)
+                    #self.model.appendRow(block)
+                    parent.appendRow(block)
+
 
 def addItems(parent, elements):
         for text, children in elements:
@@ -122,12 +156,11 @@ def addItems(parent, elements):
             if children:
                 self.addItems(item, children)
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window. resize(620, 440)
+    window. setWindowTitle("Make.py GUI")
 
-app = QApplication(sys.argv)
-window = MainWindow()
-window. resize(620, 440)
-window. setWindowTitle("Make.py GUI")
-
-window.show()
-#sys.exit(a.exec_())
-app.exec_()
+    window.show()
+    app.exec_()
